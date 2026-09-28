@@ -51,7 +51,7 @@ def showAdminMenu():
     print('=' * 50)
     print('=             班级管理-管理员 V1.0             =')
     print('*' * 50)
-    print('* 添加（A） | 删除（D） | 查看（u） | 修改（M） | 清屏（C） | 推出（X） *')
+    print('* 添加（A） | 删除（D） | 查看（u） | 修改（M） | 清屏（C） | 退出（X） *')
     print('*' * 50)
 
 def showStuMenu():

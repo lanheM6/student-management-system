@@ -6,18 +6,21 @@
 
 | 模块 | 状态 |
 |---|---|
-| 登录（用户名 / 密码 / 角色区分） | 🚧 框架完成，有已知问题 |
-| 管理员菜单（增删改查） | ⬜ 菜单框架完成，功能待实现 |
+| 登录（用户名 / 密码 / 角色区分） | ✅ 可用（比对内存列表） |
+| 管理员菜单 — 添加学生（A） | ✅ 可用（批量录入、学号查重、自动初始密码） |
+| 管理员菜单 — 删除（D）/ 查看（u）/ 修改（M） | ⬜ 菜单项在，功能待实现 |
 | 学生菜单（查看 / 修改） | ⬜ 菜单框架完成，功能待实现 |
-| 数据持久化（MySQL） | 🚧 连接试验完成，尚未接入主程序 |
+| 数据持久化（MySQL） | 🚧 连接试验通过，尚未接入主程序 |
+
+> ⚠️ 现在所有用户数据都存在内存的 `users` 列表里，**程序一关就全没了**。接入数据库是下一步。
 
 ## 项目结构
 
 ```
 student-management-system/
 ├── StudentMS.py              # 主程序：登录 + 管理员/学生菜单
-├── practice/                 # 试验代码（验证技术方案用，不是主程序的一部分）
-│   ├── test_db.py            #   试验：连接 MySQL、建表、插入、查询
+├── practice/                 # 试验代码 + 主程序要用的数据库配置
+│   ├── test_db.py            #   试验：连接 MySQL、查询 users 表
 │   ├── db_config.example.py  #   数据库配置模板（可以提交）
 │   ├── db_config.py          #   数据库配置（含真实密码，不会提交）
 │   └── menu_demo.py          #   试验：菜单交互
@@ -25,17 +28,13 @@ student-management-system/
     └── planning.md           # 开发规划：从内存列表到 MySQL
 ```
 
+> 📌 `StudentMS.py` 第 9 行用 `sys.path.insert()` 把 `practice/` 加进了模块搜索路径，
+> 所以主程序才能 `from db_config import ...` 读到配置。
+> 这是个临时方案——等主程序真正接入数据库时，配置文件的归属可能要重新安排。
+
 ## 怎么运行
 
-### 主程序
-
-```bash
-py -3.10 StudentMS.py
-```
-
-### 数据库试验（`practice/test_db.py`）
-
-**第 1 步：准备数据库配置**
+### 第 1 步：准备数据库配置（主程序和试验脚本都需要）
 
 本项目**不包含数据库密码**，你需要自己建一个 `db_config.py`：
 
@@ -51,13 +50,13 @@ cp db_config.example.py db_config.py
 
 然后打开 `db_config.py`，把 `DB_PASSWORD` 改成你自己的 MySQL 密码。
 
-**第 2 步：装依赖**
+### 第 2 步：装依赖
 
 ```bash
 py -3.10 -m pip install pymysql
 ```
 
-**第 3 步：建库建表**（如果还没建过）
+### 第 3 步：建库建表（如果还没建过）
 
 ```sql
 CREATE DATABASE student_ms DEFAULT CHARSET utf8mb4;
@@ -73,14 +72,39 @@ CREATE TABLE users (
 );
 ```
 
-**第 4 步：运行**
+### 运行主程序
+
+```bash
+py -3.10 StudentMS.py
+```
+
+登录用 `admin` / `123456`。
+
+> 主程序目前**只用到了配置文件里的常量**，还没有真正连数据库，
+> 所以跑主程序**不需要 MySQL 服务处于启动状态**，只要 `practice/db_config.py` 这个文件存在就行。
+
+### 运行数据库试验
 
 ```bash
 cd practice
 py -3.10 test_db.py
 ```
 
-会打印出 users 表的内容。脚本是**幂等**的——重复运行不会报"主键重复"错误。
+会打印出 users 表的内容。
+
+> ⚠️ 这一步**必须 MySQL 服务在运行**。如果报
+> `OperationalError (2003, "Can't connect to MySQL server")`，
+> 说明服务没启动，去 Windows 服务里启动 MySQL，或者用管理员权限运行
+> `net start mysql80`（服务名以你实际安装的为准）。
+
+## 已知问题 / 待办
+
+- [ ] **数据不持久化** —— 内存列表，重启即丢，接入 MySQL 是主线任务
+- [ ] `users` 表结构还没有 `age`、`sex` 两列，但主程序里的学生字典已经加了这两个字段，
+      接数据库时要一起改表
+- [ ] `StudentMS.py` 里 `import time`、`import pymysql` 目前还没用上（为后续接数据库预留）
+- [ ] 管理员菜单第 54 行打印的是"**推出**（X）"，应为"退出"
+- [ ] 管理员菜单的删除 / 查看 / 修改、学生菜单的全部功能
 
 ## 关于密码安全
 
