@@ -13,7 +13,7 @@ from db_config import DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_CHARSET
 
 #初始化用户列表
 users = [
-    {"sid":"admin","passwd":"123456","sname":"管理员","role":"admin"}
+    {"sid":"admin","passwd":"123456","sname":"管理员","age":"无","sex":"无","role":"admin"}
 ]
 
 #函数定义
@@ -103,6 +103,42 @@ def addStudent():
     for u in users:
         print(u)
 
+#查看学生信息功能函数定义
+def viewStudents():
+    mode = input("请输入查找用户的方式（学号：0/名字:1/显示所有用户：*）：")
+
+    if mode == "0":
+        sid = input("请输入要查找的学号：")
+        found = False
+        for u in users:
+            if u["sid"] == sid:
+                print(u)
+                found == True
+                break
+        if not found:
+            print("没有找到该学号的学生！")
+        
+    elif mode == "1":
+        sname = input("请输入要查找的学生姓名：")
+        found = False
+        for u in users:
+            if u["sname"] == sname:
+                print(u)
+                Found = True
+                break
+        if not found:
+            print("没有找到该姓名的学生！")
+
+    elif mode == "*":
+        print("-" * 50)
+        print("学号\t姓名\t年龄\t性别\t角色")
+        print("-" * 50)
+        for u in users:
+            print(f"{u['sid']}\t{u['sname']}\t{u.get('age')}\t{u.get('sex')}\t{u['role']}")
+        print("-" * 50)
+
+    else:
+        print("无效的选择！")
 
 #后台（管理员）主循环函数
 def adminMain(user):
@@ -116,6 +152,8 @@ def adminMain(user):
             cleanScreen()
         elif ch == "A" or ch == "a":
             addStudent()
+        elif ch == "U" or ch == "u":
+            viewStudents()
         else:
             print('该功能待实现')
 
